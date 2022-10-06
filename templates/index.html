@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Scrapper</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Karla:wght@500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: 'Karla', sans-serif;
+        }
+
+        body {
+            background: dodgerblue;
+        }
+
+        .container {
+            width: 50%;
+            background: #fff;
+            margin: 12px auto;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        input#url_to_extract {
+            padding: 5px;
+            width: 512px;
+            border: 2px solid #000;
+            border-radius: 5px;
+            box-shadow: none;
+            outline: none;
+            font-size: 16px;
+        }
+        
+        button#btn {
+            padding: 5px;
+            background: none;
+            border: 2px solid #000;
+            border-radius: 5px;
+        }
+
+        textarea#scrapped_data {
+            padding: 5px;
+            width: 600px;
+            border: 2px solid #000;
+            border-radius: 5px;
+            box-shadow: none;
+            outline: none;
+            margin: 8px auto;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="main">
+        <input type="url" id="url_to_extract" placeholder="Enter the url to extract content...">
+        <button type="submit" id="btn">Fetch</button>
+        <br>
+        <textarea id="scrapped_data" rows="30" disabled readonly></textarea>
+    </div>
+    <script defer>
+        let btn = document.getElementById("btn");
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (document.getElementById('url_to_extract').value != ""){
+                const formData = new FormData();
+                formData.append('url', document.getElementById('url_to_extract').value);
+                fetch('/scrap', {
+                    method: 'post',
+                    body: formData
+                })
+                .then(res => res.text())
+                .then(data => {
+                    document.getElementById('scrapped_data').value = data;
+                    let mainDiv = document.getElementById("main");
+                    mainDiv.insertAdjacentHTML('beforeend', '<br>');
+                    let button = document.createElement("button");
+                    button.innerHTML = "Copy";
+                    button.id = "copyBtn";
+                    // Add styles to the button
+                    button.style.padding = "5px";
+                    button.style.background = "none";
+                    button.style.border = "2px solid #000";
+                    button.style.borderRadius = "5px"; 
+                    mainDiv.insertAdjacentElement('beforeend', button);
+
+                    let copyBtn = document.getElementById('copyBtn');
+                    copyBtn.addEventListener('click', () => {
+                        navigator.clipboard.writeText(document.getElementById('scrapped_data').value);
+                        document.getElementById('scrapped_data').select();
+                        copyBtn.innerHTML = 'Copied!';
+                        window.alert('Copied the text successfully!');
+                    })
+                    setTimeout(() => {
+                        copyBtn.innerHTML = 'Copy';
+                    }, 3000);
+                })
+            }
+        })
+    </script>
+</body>
+</html>
