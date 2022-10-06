@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Scrapper</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Karla:wght@500&display=swap');
 
@@ -17,89 +18,71 @@
         body {
             background: dodgerblue;
         }
-
-        .container {
-            width: 50%;
-            background: #fff;
-            margin: 12px auto;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        input#url_to_extract {
-            padding: 5px;
-            width: 512px;
-            border: 2px solid #000;
-            border-radius: 5px;
-            box-shadow: none;
-            outline: none;
-            font-size: 16px;
-        }
-        
-        button#btn {
-            padding: 5px;
-            background: none;
-            border: 2px solid #000;
-            border-radius: 5px;
-        }
-
-        textarea#scrapped_data {
-            padding: 5px;
-            width: 600px;
-            border: 2px solid #000;
-            border-radius: 5px;
-            box-shadow: none;
-            outline: none;
-            margin: 8px auto;
-            resize: none;
-        }
     </style>
 </head>
 <body>
-    <div class="container" id="main">
+    <!-- <div class="container" id="main">
         <input type="url" id="url_to_extract" placeholder="Enter the url to extract content...">
         <button type="submit" id="btn">Fetch</button>
         <br>
         <textarea id="scrapped_data" rows="30" disabled readonly></textarea>
+    </div> -->
+    <div class="container bg-white p-3 rounded mr-auto ml-auto my-3">
+        <div class="alert alert-success text-center mb-0">
+            <strong><h3 class="mb-0">Get the html code of any website</h3></strong>
+        </div>
+        <div class="mt-3" id="main">
+            <div class="input-group">
+                <input type="url" class="form-control" id="url_to_extract" placeholder="Enter the url to extract content..." aria-describedby="fetchBtn">
+                <div class="input-group-append">
+                    <button type="submit" id="btn" class="btn btn-danger">Fetch</button>
+                </div>
+            </div>
+            <hr>
+            <textarea class="form-control" id="scrapped_data" rows="15" disabled readonly></textarea>
+        </div>
     </div>
     <script defer>
         let btn = document.getElementById("btn");
         btn.addEventListener("click", (e) => {
-            e.preventDefault();
             if (document.getElementById('url_to_extract').value != ""){
-                const formData = new FormData();
-                formData.append('url', document.getElementById('url_to_extract').value);
-                fetch('/scrap', {
-                    method: 'post',
-                    body: formData
-                })
-                .then(res => res.text())
-                .then(data => {
-                    document.getElementById('scrapped_data').value = data;
-                    let mainDiv = document.getElementById("main");
-                    mainDiv.insertAdjacentHTML('beforeend', '<br>');
-                    let button = document.createElement("button");
-                    button.innerHTML = "Copy";
-                    button.id = "copyBtn";
-                    // Add styles to the button
-                    button.style.padding = "5px";
-                    button.style.background = "none";
-                    button.style.border = "2px solid #000";
-                    button.style.borderRadius = "5px"; 
-                    mainDiv.insertAdjacentElement('beforeend', button);
-
-                    let copyBtn = document.getElementById('copyBtn');
-                    copyBtn.addEventListener('click', () => {
-                        navigator.clipboard.writeText(document.getElementById('scrapped_data').value);
-                        document.getElementById('scrapped_data').select();
-                        copyBtn.innerHTML = 'Copied!';
-                        window.alert('Copied the text successfully!');
+                e.preventDefault();
+                btn.innerHTML = `Fetching...
+                <div class="spinner-border spinner-border-sm text-light" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                `;
+                if (!btn.classList.contains("disabled")){
+                    btn.classList.add("disabled");
+                    btn.setAttribute("disabled", "disabled");
+                    const formData = new FormData();
+                    formData.append('url', document.getElementById('url_to_extract').value);
+                    fetch('/scrap', {
+                        method: 'post',
+                        body: formData
                     })
-                    setTimeout(() => {
-                        copyBtn.innerHTML = 'Copy';
-                    }, 3000);
-                })
+                    .then(res => res.text())
+                    .then(data => {
+                        btn.innerHTML = "Fetched"
+                        document.getElementById('scrapped_data').value = data;
+                        let mainDiv = document.getElementById("main");
+                        let copyBtn = document.createElement("button");
+                        copyBtn.innerHTML = "Copy";
+                        copyBtn.setAttribute("class", "btn btn-sm btn-danger mt-2");
+                        mainDiv.insertAdjacentElement('beforeend', copyBtn);
+    
+                        copyBtn.addEventListener('click', () => {
+                            navigator.clipboard.writeText(document.getElementById('scrapped_data').value);
+                            document.getElementById('scrapped_data').select();
+                            copyBtn.innerHTML = 'Copied!';
+                        })
+                        setTimeout(() => {
+                            copyBtn.innerHTML = 'Copy';
+                        }, 2500);
+                    })
+                }
+            }else{
+                window.alert("Please enter a url!");
             }
         })
     </script>
